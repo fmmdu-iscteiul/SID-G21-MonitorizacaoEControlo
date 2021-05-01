@@ -8,6 +8,7 @@ import com.mongodb.MongoClient;
 
 public class mongoToMongo {
 
+	@SuppressWarnings({ "unused", "deprecation" })
 	public static void main (String[] args) {
 		//Criar um mongo cliente
 		MongoClient mongo = new MongoClient ("localhost", 27017);
@@ -25,6 +26,7 @@ public class mongoToMongo {
 			System.out.println(cursor.next());
 
 		}
+		mongo.close();
 
 
 
