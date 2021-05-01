@@ -54,11 +54,12 @@ public class cloudToMongo extends Thread {
 		int i = 0; // aux
 
 //		FindIterable<Document> cursor = collectionCloud.find().sort(new BasicDBObject("_id", -1));
-//		DBCursor cursor = collectionCloud.find().sort(new BasicDBObject("_id", -1));
+		DBCursor cursor = collectionCloud.find().sort(new BasicDBObject("_id", -1));
 		
-		DBCursor cursor = collectionCloud.find();
+//		DBCursor cursor = collectionCloud.find(); working!!!
 		
 //		DBCursor cursor = collectionCloud.find().sort((DBObject) new Document("_id", -1)).limit(50);
+
 		
 		DBObject[] leitura = new DBObject[5];
 		
