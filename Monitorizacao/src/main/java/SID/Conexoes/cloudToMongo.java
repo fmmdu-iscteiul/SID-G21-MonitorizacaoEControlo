@@ -8,6 +8,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
+import com.mongodb.MongoSocketOpenException;
 import com.mongodb.ServerAddress;
 
 public class cloudToMongo extends Thread {
@@ -46,7 +47,7 @@ public class cloudToMongo extends Thread {
 		DB dbCloud = mongoClientCloud.getDB("sid2021");
 		DBCollection collectionCloud = dbCloud.getCollection(sensor);
 
-//		int i = 0; // aux
+		int i = 0; // aux
 
 		DBCursor cursor;
 
@@ -73,12 +74,15 @@ public class cloudToMongo extends Thread {
 					this.sleep(2000);
 
 				} else {
-
+					if(i == 5) {
+						i = 0;
+						this.interrupt();
+					}
+					i++;
 					this.sleep(2000);
 					System.out.println("Waiting for the sensor");
 				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			} catch (InterruptedException | MongoSocketOpenException e) {
 				System.out.println("Sensor interrompido");
 				break;
 			}
