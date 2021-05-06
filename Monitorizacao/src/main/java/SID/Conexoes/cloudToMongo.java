@@ -14,7 +14,8 @@ import com.mongodb.ServerAddress;
 
 public class cloudToMongo extends Thread {
 
-	public String sensor;
+	private String sensorCloud;
+	private String sensor;
 	String userCloud = "aluno"; // the userCloud name
 	String databaseCloud = "admin"; // the name of the databaseCloud in which the userCloud is defined
 	char[] passwordCloud = { 'a', 'l', 'u', 'n', 'o' }; // the passwordCloud as a character array
@@ -23,12 +24,13 @@ public class cloudToMongo extends Thread {
 	String database = "Monitorizacao";
 	char[] password = {'m', 't', 'T', 'L', '5', 'B', 'W', 'd', '6', 'F', 'f', '3'};
 
-	public cloudToMongo(String sensor) {
+	public cloudToMongo(String sensorCloud, String sensor) {
+		this.sensorCloud = sensorCloud;
 		this.sensor = sensor;
 	}
 
 	public static void main(String[] args) {
-		cloudToMongo c = new cloudToMongo("sensort1");
+		cloudToMongo c = new cloudToMongo("sensort1", "Temperatura1");
 		c.start();
 	}
 
@@ -41,9 +43,9 @@ public class cloudToMongo extends Thread {
 		/** ---------------------------------------- */
 		// Criar um mongo cliente
 
-		MongoClient mongo = new MongoClient("localhost", 27017);
-//		MongoCredential ourCredentials = MongoCredential.createScramSha1Credential(user, database, password);
-//		MongoClient mongo = new MongoClient(new ServerAddress("10.101.212.123", 27017), Arrays.asList(ourCredentials));
+		//MongoClient mongo = new MongoClient("localhost", 27017);
+		MongoCredential ourCredentials = MongoCredential.createScramSha1Credential(user, database, password);
+		MongoClient mongo = new MongoClient(Arrays.asList(new ServerAddress("10.101.212.123", 27016), new ServerAddress("10.101.212.123", 23016), new ServerAddress("10.101.212.123", 25016)), Arrays.asList(ourCredentials));
 		
 		// Conecta a uma base de dados
 		DB db = mongo.getDB("Monitorizacao");
@@ -53,7 +55,7 @@ public class cloudToMongo extends Thread {
 		/** ---------------------------------------- */
 
 		DB dbCloud = mongoClientCloud.getDB("sid2021");
-		DBCollection collectionCloud = dbCloud.getCollection(sensor);
+		DBCollection collectionCloud = dbCloud.getCollection(sensorCloud);
 
 		int i = 0; // aux
 

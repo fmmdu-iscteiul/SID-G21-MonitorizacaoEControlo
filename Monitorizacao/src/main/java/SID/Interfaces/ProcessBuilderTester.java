@@ -129,22 +129,22 @@ public class ProcessBuilderTester {
 			t.start();
 			switch (num) {
 			case 0:
-				t1 = new cloudToMongo("sensorh1");
+				t1 = new cloudToMongo("sensorh1", "Humidade1");
 				break;
 			case 1:
-				t1 = new cloudToMongo("sensorh2");
+				t1 = new cloudToMongo("sensorh2", "Humidade2");
 				break;
 			case 2:
-				t1 = new cloudToMongo("sensort1");
+				t1 = new cloudToMongo("sensort1", "Temperatura1");
 				break;
 			case 3:
-				t1 = new cloudToMongo("sensort2");
+				t1 = new cloudToMongo("sensort2", "Temperatura2");
 				break;
 			case 4:
-				t1 = new cloudToMongo("sensorl1");
+				t1 = new cloudToMongo("sensorl1", "Luminosidade1");
 				break;
 			case 5:
-				t1 = new cloudToMongo("sensorl2");
+				t1 = new cloudToMongo("sensorl2", "Luminosidade2");
 				break;
 				
 			}
