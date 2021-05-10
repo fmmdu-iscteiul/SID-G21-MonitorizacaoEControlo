@@ -6,6 +6,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoSocketOpenException;
@@ -17,6 +18,11 @@ public class cloudToMongo extends Thread {
 	String userCloud = "aluno"; // the userCloud name
 	String databaseCloud = "admin"; // the name of the databaseCloud in which the userCloud is defined
 	char[] passwordCloud = { 'a', 'l', 'u', 'n', 'o' }; // the passwordCloud as a character array
+
+	String user = "admin";
+	String database = "Monitorizacao";
+	char[] password = { 'm', 't', 'T', 'L', '5', 'B', 'W', 'd', '6', 'F', 'f', '3' };
+
 
 	public cloudToMongo(String sensor) {
 		this.sensor = sensor;
@@ -34,9 +40,20 @@ public class cloudToMongo extends Thread {
 				Arrays.asList(credential));
 
 		/** ---------------------------------------- */
-		// Criar um mongo cliente
+		
+		// Criar um mongo cliente - pc fred
 
 		MongoClient mongo = new MongoClient("localhost", 27017);
+
+		
+		/** Codigo para pc da ana */
+//		MongoCredential ourCredentials = MongoCredential.createScramSha1Credential(user, database, password);
+//		MongoClient mongo = new MongoClient(Arrays.asList(new ServerAddress("10.101.212.123", 27016),
+//				new ServerAddress("10.101.212.123", 23016), new ServerAddress("10.101.212.123", 25016)),
+//				Arrays.asList(ourCredentials));
+
+		/**------------------------------------------*/
+		
 		// Conecta a uma base de dados
 		DB db = mongo.getDB("Monitorizacao");
 		// Conecta a coleçao existente
@@ -84,6 +101,15 @@ public class cloudToMongo extends Thread {
 				}
 			} catch (InterruptedException | MongoSocketOpenException e) {
 				System.out.println("Sensor interrompido");
+
+			} catch (DuplicateKeyException e) {
+				System.out.println("Sensor não forneceu novas leituras.");
+			}
+
+			try {
+				this.sleep(2000);
+			} catch (InterruptedException e1) {
+
 				break;
 			}
 
