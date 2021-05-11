@@ -23,7 +23,7 @@ public class cloudToMongo extends Thread {
 	String user = "admin";
 	String database = "Monitorizacao";
 	char[] password = {'m', 't', 'T', 'L', '5', 'B', 'W', 'd', '6', 'F', 'f', '3'};
-
+	
 	public cloudToMongo(String sensorCloud, String sensor) {
 		this.sensorCloud = sensorCloud;
 		this.sensor = sensor;
@@ -43,9 +43,11 @@ public class cloudToMongo extends Thread {
 		/** ---------------------------------------- */
 		// Criar um mongo cliente
 
-		//MongoClient mongo = new MongoClient("localhost", 27017);
-		MongoCredential ourCredentials = MongoCredential.createScramSha1Credential(user, database, password);
-		MongoClient mongo = new MongoClient(Arrays.asList(new ServerAddress("10.101.212.123", 27016), new ServerAddress("10.101.212.123", 23016), new ServerAddress("10.101.212.123", 25016)), Arrays.asList(ourCredentials));
+		MongoClient mongo = new MongoClient("localhost", 27017);// usar no pc do fred
+		
+		/** usar no pc da ana */
+//		MongoCredential ourCredentials = MongoCredential.createScramSha1Credential(user, database, password);
+//		MongoClient mongo = new MongoClient(Arrays.asList(new ServerAddress("10.101.212.123", 27016), new ServerAddress("10.101.212.123", 23016), new ServerAddress("10.101.212.123", 25016)), Arrays.asList(ourCredentials));
 		
 		// Conecta a uma base de dados
 		DB db = mongo.getDB("Monitorizacao");
@@ -56,8 +58,6 @@ public class cloudToMongo extends Thread {
 
 		DB dbCloud = mongoClientCloud.getDB("sid2021");
 		DBCollection collectionCloud = dbCloud.getCollection(sensorCloud);
-
-		int i = 0; // aux
 
 		DBCursor cursor;
 
@@ -76,26 +76,37 @@ public class cloudToMongo extends Thread {
 			try {
 				cursor = collectionCloud.find().sort(new BasicDBObject("_id", -1)); // -1 for descending, 1 for
 																					// ascending
-				if (cursor.hasNext()) {
+				
+				while (cursor.hasNext()) { //podemos usar while para testes MAS o "if" é que apanha o último valor que é inserido
+					try {
 					leitura = cursor.next();
-//					leitura[i] = cursor.next();
 					// analyse new entries
 					System.out.println("Leitura sensor cloud: " + leitura);
 					collection.insert(leitura);
-//					i++;
-
-				} else {
-					if (i == 5) {
-						i = 0;
-						this.interrupt();
+					
+//					javaToSQL.insertTabela(leitura, true);
+					
+					} catch (DuplicateKeyException e) {
+						System.out.println("Sensor não forneceu novas leituras.");
 					}
-					i++;
-					System.out.println("Waiting for the sensor");
-				}
+					
+					
+					
+					this.sleep(2000);
+
+				} 
+				
+				//Sysout dentro de um else (quando se usar o if na statement acima)
+				System.out.println("Waiting for the sensor");
+	
 			} catch (MongoSocketOpenException e) {
 				System.out.println("Sensor interrompido");
-			} catch (DuplicateKeyException e) {
-				System.out.println("Sensor não forneceu novas leituras.");
+			} catch (InterruptedException e) {
+				System.out.println("Problema - Interrupção Sensor");
+				break;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
 			try {
