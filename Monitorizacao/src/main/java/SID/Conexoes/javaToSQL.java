@@ -38,13 +38,13 @@ public class javaToSQL {
 		try {
 			Statement statement = con.createStatement();
 			String insertquery;
-			if(medicao) {
-				insertquery = "INSERT INTO `medicao`(`IDMedicao`, `Zona`, `Sensor`, `Hora`, `Leitura`) VALUES ('" + content[0] + "', '" + content[1] + "', '"
-						+ content[2] + "', '" + content[3]  + "', '" + content[4] + "')";
-			}
+			if(medicao) 
+				insertquery = "INSERT INTO `medicao`(`IDMedicao`, `Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('', '" + content[1] + "', '"
+						+ content[2] + "', '" + Timestamp.valueOf(content[3])  + "', '" + Double.valueOf(content[4]) + "', '" + content[0] + "')";
+			
 			else
-				insertquery = "INSERT INTO `medicao_erro`(`IDMedicao`, `Zona`, `Sensor`, `Hora`, `Leitura`) VALUES ('" + content[0] + "', '" + content[1] + "', '"
-						+ content[2] + "', '" + Timestamp.valueOf(content[3])  + "', '" + Double.valueOf(content[4]) + "')";
+				insertquery = "INSERT INTO `medicao_erro`(`IDMedicao`, `Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('', '" + content[1] + "', '"
+						+ content[2] + "', '" + Timestamp.valueOf(content[3])  + "', '" + Double.valueOf(content[4]) + "', '" + content[0] + "')";
 
 			statement.executeUpdate(insertquery);
 			System.out.print("Inserted");
