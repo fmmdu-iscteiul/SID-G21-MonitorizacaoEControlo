@@ -69,9 +69,6 @@ public class mongoToJava extends Thread {
 		collectionBackup = db.getCollection("Backup");
 		System.out.println(collectionBackup.getName());
 
-
-		int i = 0; // aux
-
 		DBCursor cursor;
 
 		/**
@@ -88,7 +85,7 @@ public class mongoToJava extends Thread {
 
 		while (true) {
 			try {
-				cursor = collection.find().sort(new BasicDBObject("_id", -1)); // -1 for descending, 1 for
+				cursor = collection.find().sort(new BasicDBObject("_id", 1)); // -1 for descending, 1 for
 				// ascending
 				while (cursor.hasNext()) {
 					leitura = cursor.next();
@@ -118,6 +115,15 @@ public class mongoToJava extends Thread {
 				System.out.println("Sensor interrompido");
 			} catch (DuplicateKeyException e) {
 				System.out.println("Sensor não forneceu novas leituras.");
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
 			try {
@@ -151,22 +157,22 @@ public class mongoToJava extends Thread {
 		return true;
 	}
 
-	public void insertSQLMedicao(DBObject leitura, double medicao) {
+	public void insertSQLMedicao(DBObject leitura, double medicao) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		//insert in SQL
-
+		javaToSQL.insertTabela(leitura, true);
 		// Passa a leitura para a colecao backup e apaga
 		collectionToBackup(leitura);
 		refMedicao = medicao;
 	}
 
-	public void insertSQLMedicaoErro(DBObject leitura) {
+	public void insertSQLMedicaoErro(DBObject leitura) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		//insert in SQL
-
+		javaToSQL.insertTabela(leitura, false);
 		// Passa a leitura para a colecao backup e apaga
 		collectionToBackup(leitura);
 	}
 
-	public void insertSQL(DBObject leitura, boolean  isSuspect, boolean isCoerent, double medicao) {
+	public void insertSQL(DBObject leitura, boolean  isSuspect, boolean isCoerent, double medicao) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		//todas certas - isSuspect, isCoerent, ultima
 		//todas erradas - isSuspect, !isCoerent, ultima ou nao
 		//so ultima correta - !isSuspect, !isCoerent, ultima ou nao
