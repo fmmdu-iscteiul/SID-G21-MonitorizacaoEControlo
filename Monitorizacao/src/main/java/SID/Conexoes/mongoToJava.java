@@ -1,5 +1,6 @@
 package SID.Conexoes;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -41,7 +42,7 @@ public class mongoToJava extends Thread {
 	private DBObject[] errorVet = new DBObject[3];
 	private int errorInt = 0;
 	private double refMedicao = 10000; //10000?
-	private double MAX_VARIATION=3; 
+	private double MAX_VARIATION=5; 
 
 	//construtor
 	public mongoToJava(String collectionName) {
@@ -85,7 +86,7 @@ public class mongoToJava extends Thread {
 
 		while (true) {
 			try {
-				cursor = collection.find().sort(new BasicDBObject("_id", 1)); // -1 for descending, 1 for
+				cursor = collection.find().sort(new BasicDBObject("_id", -1)); // -1 for descending, 1 for
 				// ascending
 				while (cursor.hasNext()) {
 					leitura = cursor.next();
@@ -107,6 +108,8 @@ public class mongoToJava extends Thread {
 						insertSQL(leitura, isSuspect, isCoerent, d);
 						errorInt = 0; //reset do vetor
 					}
+					//mover para backup
+					collectionToBackup(leitura);
 
 				} 
 				System.out.println("Waiting for the sensor");
@@ -123,6 +126,10 @@ public class mongoToJava extends Thread {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				errorInt = 0;
 				e.printStackTrace();
 			}
 
@@ -157,22 +164,52 @@ public class mongoToJava extends Thread {
 		return true;
 	}
 
-	public void insertSQLMedicao(DBObject leitura, double medicao) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		//insert in SQL
-		javaToSQL.insertTabela(leitura, true);
-		// Passa a leitura para a colecao backup e apaga
-		collectionToBackup(leitura);
-		refMedicao = medicao;
+	public void insertSQLMedicao(DBObject leitura, double medicao)  {
+		try {
+			//insert in SQL
+			javaToSQL.insertTabela(leitura, true);
+			// Passa a leitura para a colecao backup e apaga
+			//collectionToBackup(leitura);
+			refMedicao = medicao;
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public void insertSQLMedicaoErro(DBObject leitura) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		//insert in SQL
-		javaToSQL.insertTabela(leitura, false);
-		// Passa a leitura para a colecao backup e apaga
-		collectionToBackup(leitura);
+	public void insertSQLMedicaoErro(DBObject leitura) {
+		try {
+			//insert in SQL
+			javaToSQL.insertTabela(leitura, false);
+			// Passa a leitura para a colecao backup e apaga
+			//collectionToBackup(leitura);
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			// Passa a leitura para a colecao backup e apaga
+			//collectionToBackup(leitura);
+			e.printStackTrace();
+		}
 	}
 
-	public void insertSQL(DBObject leitura, boolean  isSuspect, boolean isCoerent, double medicao) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public void insertSQL(DBObject leitura, boolean  isSuspect, boolean isCoerent, double medicao) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		//todas certas - isSuspect, isCoerent, ultima
 		//todas erradas - isSuspect, !isCoerent, ultima ou nao
 		//so ultima correta - !isSuspect, !isCoerent, ultima ou nao
@@ -194,7 +231,7 @@ public class mongoToJava extends Thread {
 
 				}
 				else { //nao suspeita, incoerente - so a ultima esta correta
-					for(int i = 0; i < errorInt-1; i++)
+					for(int i = 0; i < errorInt; i++)
 						insertSQLMedicaoErro(errorVet[i]);
 					insertSQLMedicao(leitura, medicao);
 					System.out.println("Leituras inseridas so a ultima esta correta");
@@ -203,7 +240,7 @@ public class mongoToJava extends Thread {
 		}
 
 	}
-
+	
 
 	public void collectionToBackup(DBObject leitura) {
 		// Passa a leitura para a colecao backup e apaga 
