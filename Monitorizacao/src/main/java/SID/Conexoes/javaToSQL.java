@@ -32,41 +32,37 @@ public class javaToSQL {
 		}
 	}
 
-	public static void insertTabela(DBObject leitura, boolean medicao) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public static void insertTabela(DBObject leitura, boolean medicao) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		String[] content = stringSplitter(leitura);
 		connection();
-		try {
-			Statement statement = con.createStatement();
-			String insertquery;
-			if(medicao) 
-				insertquery = "INSERT INTO `medicao`(`IDMedicao`, `Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('', '" + content[1] + "', '"
-						+ content[2] + "', '" + Timestamp.valueOf(content[3])  + "', '" + Double.valueOf(content[4]) + "', '" + content[0] + "')";
-			
-			else
-				insertquery = "INSERT INTO `medicao_erro`(`IDMedicao`, `Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('', '" + content[1] + "', '"
-						+ content[2] + "', '" + Timestamp.valueOf(content[3])  + "', '" + Double.valueOf(content[4]) + "', '" + content[0] + "')";
+		Statement statement = con.createStatement();
+		String insertquery;
+		if(medicao) {
+			insertquery = "INSERT INTO `medicao`(`Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('" + content[1] + "', '"
+					+ content[2] + "', '" + Timestamp.valueOf(content[3])  + "', '" + Double.valueOf(content[4]) + "', '" + content[0] + "')";
 
-			statement.executeUpdate(insertquery);
-			System.out.print("Inserted");
+			System.out.println("Inserted na tabela medicao");
+		} else {
+			insertquery = "INSERT INTO `medicao_erro`(`Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('" + content[1] + "', '"
+					+ content[2] + "', '" + Timestamp.valueOf(content[3])  + "', '" + Double.valueOf(content[4]) + "', '" + content[0] + "')";
 
-		} catch (SQLException e) {
-			System.out.print("Not Inserted");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Inserted na tabela erro.");		
 		}
+		
+		statement.executeUpdate(insertquery);
 
 	}
-	
+
 	private static String[] stringSplitter(DBObject leitura) {
 		String id = leitura.get("_id").toString();
 		String zona = leitura.get("Zona").toString();
 		String sensor = leitura.get("Sensor").toString();
 		String data = leitura.get("Data").toString();
 		String medicao = leitura.get("Medicao").toString();
-//		StringUtils.substringsBetween(id, "ObjectID(\"", "\")");
+		//		StringUtils.substringsBetween(id, "ObjectID(\"", "\")");
 		data = StringUtils.replace(data, "T", " ");
 		data = StringUtils.replace(data, "Z", "");
-		
+
 		String[] r = {id, zona, sensor, data, medicao};
 		for(int i = 0; i < 5; i++)
 			System.out.println("Excerto " + i + " " + r[i]);

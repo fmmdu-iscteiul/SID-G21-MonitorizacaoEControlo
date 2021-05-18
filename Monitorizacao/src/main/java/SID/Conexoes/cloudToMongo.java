@@ -8,6 +8,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoSocketOpenException;
 import com.mongodb.ServerAddress;
@@ -43,11 +44,13 @@ public class cloudToMongo extends Thread {
 		/** ---------------------------------------- */
 		// Criar um mongo cliente
 
-		MongoClient mongo = new MongoClient("localhost", 27017);// usar no pc do fred
+		//MongoClient mongo = new MongoClient("localhost", 27017);// usar no pc do fred
 		
 		/** usar no pc da ana */
 //		MongoCredential ourCredentials = MongoCredential.createScramSha1Credential(user, database, password);
 //		MongoClient mongo = new MongoClient(Arrays.asList(new ServerAddress("10.101.212.123", 27016), new ServerAddress("10.101.212.123", 23016), new ServerAddress("10.101.212.123", 25016)), Arrays.asList(ourCredentials));
+		MongoClient mongo = new MongoClient(
+			    new MongoClientURI("mongodb://localhost:27016,localhost:23016,localhost:25016/?replicaSet=replicaMonitorizacao"));
 		
 		// Conecta a uma base de dados
 		DB db = mongo.getDB("Monitorizacao");
