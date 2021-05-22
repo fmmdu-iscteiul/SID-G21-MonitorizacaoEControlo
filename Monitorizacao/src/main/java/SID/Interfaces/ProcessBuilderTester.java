@@ -5,7 +5,6 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -13,21 +12,24 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import SID.Conexoes.cloudToMongo;
-
+import SID.BrokerToMongo.Broker;
 
 public class ProcessBuilderTester {
 
-	/*ola*/
+	/* ola */
 	public JFrame frame;
-	ProcessBuilder pb = new ProcessBuilder("java", "-jar", "C:\\Users\\Yotsuba\\Desktop\\Teste.jar"); //Torre
-	Process processo;	
+//	ProcessBuilder pb = new ProcessBuilder("java", "-jar", "C:\\Users\\Yotsuba\\Desktop\\Teste.jar"); // Torre
+//	Process processo;
 	ThreadTeste t;
-	cloudToMongo t1;
-	private final JPanel[] panels = new JPanel[6];
-	private final JButton[] buttons = new JButton[6];
-	private final JLabel [] labels = new JLabel[6];
+	private Broker broker;
 
+	private static final int n_sensores = 6;
+
+	private final JPanel[] panels = new JPanel[n_sensores];
+	private final JButton[] buttons = new JButton[n_sensores];
+	private final JLabel[] labels = new JLabel[n_sensores];
+
+	private int iterator = 0;
 
 	public ProcessBuilderTester() {
 		frame = new JFrame("Inicializar migração dos sensores");
@@ -38,118 +40,108 @@ public class ProcessBuilderTester {
 	}
 
 	public void addFrameContent() {
-		frame.setLayout(new GridLayout(1,7));	
+		frame.setLayout(new GridLayout(1, (n_sensores + 1)));
 		JButton activateAll = new JButton("Turn all sensors on");
+//		JButton deactivateAll = new JButton("Turn all sensors off");
 		frame.add(activateAll);
+//		frame.add(deactivateAll);
 
-		for(int i = 1; i <= buttons.length; i++) {
-			if(i == 1) 
-				buttons[i-1] = new JButton("H" + 1);
+		for (int i = 0; i < buttons.length; i++) {
+			if (i == 0)
+				buttons[i] = new JButton("H" + 1);
 
-			if(i == 2)
-				buttons[i-1] = new JButton("H" + 2);
+			else if (i == 1)
+				buttons[i] = new JButton("H" + 2);
 
-			if(i == 3)
-				buttons[i-1] = new JButton("T" + 1);
+			else if (i == 2)
+				buttons[i] = new JButton("T" + 1);
 
-			if(i == 4)
-				buttons[i-1] = new JButton("T" + 2);
+			else if (i == 3)
+				buttons[i] = new JButton("T" + 2);
 
-			if(i == 5)
-				buttons[i-1] = new JButton("L" + 1);
+			else if (i == 4)
+				buttons[i] = new JButton("L" + 1);
 
-			if(i == 6)
-				buttons[i-1] = new JButton("L" + 2);
+			else if (i == 5)
+				buttons[i] = new JButton("L" + 2);
 
 		}
 
-		for(int i = 0; i < labels.length; i++) {
+		for (int i = 0; i < labels.length; i++) {
 			labels[i] = new JLabel("Down");
 		}
 
-		buttons[0].addActionListener(new ActionListener () {
-			public void actionPerformed(ActionEvent e) {
-				Initialize(0);
-			}
-		});
+		for (iterator = 0; iterator < labels.length; iterator++) {
+			buttons[iterator].addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					((JButton)e.getSource()).getText();
+					Initialize(((JButton)e.getSource()).getText());
+				}
+			});
+		}
 
-		buttons[1].addActionListener(new ActionListener () {
-			public void actionPerformed(ActionEvent e) {
-				Initialize(1);
-			}
-		});
 
-		buttons[2].addActionListener(new ActionListener () {
+		activateAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Initialize(2);
-			}
-		});
-
-		buttons[3].addActionListener(new ActionListener () {
-			public void actionPerformed(ActionEvent e) {
-				Initialize(3);
-			}
-		});
-
-		buttons[4].addActionListener(new ActionListener () {
-			public void actionPerformed(ActionEvent e) {
-				Initialize(4);
-			}
-		});
-
-		buttons[5].addActionListener(new ActionListener () {
-			public void actionPerformed(ActionEvent e) {
-				Initialize(5);
-			}
-		});
-		
-		activateAll.addActionListener(new ActionListener () {
-			public void actionPerformed(ActionEvent e) {
-				for(int i = 0; i < 6; i++) {
+				for (int i = 0; i < n_sensores; i++) {
 					buttons[i].doClick();
 				}
 			}
 		});
 		
+		
+//		-------------------------------desativar todos---------------------------------------
 
+//		deactivateAll.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				for (int i = 0; i < n_sensores; i++) {
+//					buttons[i].doClick();
+//				}
+//			}
+//		});
+		
+//		-------------------------------------------------------------------------------------		
+		
 
-		for(int i = 0; i < panels.length; i++) {
-			panels[i] = new JPanel(new GridLayout(2,1));
+		for (int i = 0; i < panels.length; i++) {
+			panels[i] = new JPanel(new GridLayout(2, 1));
 			frame.add(panels[i]);
 			panels[i].add(buttons[i]);
 			panels[i].add(labels[i]);
 		}
 	}
 
-
-	private void Initialize(int num) {
+	private void Initialize(String botao) {
 		try {
-			processo = pb.start();
-			t = new ThreadTeste(labels[num], processo, buttons[num]);
-			t.start();
-			switch (num) {
-			case 0:
-				t1 = new cloudToMongo("sensorh1", "Humidade1");
+			
+			System.out.println("\nbotao do initialize: " + botao + "\n");
+//			processo = pb.start();
+			
+//			t = new ThreadTeste(labels[botao], processo, buttons[botao]);
+//			t.start();
+						
+			switch (botao) {
+			case "H1":
+				broker = new Broker("Humidade1", "sid_g21_h1");
 				break;
-			case 1:
-				t1 = new cloudToMongo("sensorh2", "Humidade2");
+			case "H2":
+				broker = new Broker("Humidade2", "sid_g21_h2");
 				break;
-			case 2:
-				t1 = new cloudToMongo("sensort1", "Temperatura1");
+			case "T1":
+				broker = new Broker("Temperatura1", "sid_g21_t1");
 				break;
-			case 3:
-				t1 = new cloudToMongo("sensort2", "Temperatura2");
+			case "T2":
+				broker = new Broker("Temperatura2", "sid_g21_t2");
 				break;
-			case 4:
-				t1 = new cloudToMongo("sensorl1", "Luminosidade1");
+			case "L1":
+				broker = new Broker("Luminosidade1", "sid_g21_l1");
 				break;
-			case 5:
-				t1 = new cloudToMongo("sensorl2", "Luminosidade2");
+			case "L2":
+				broker = new Broker("Luminosidade2", "sid_g21_l2");
 				break;
-				
+
 			}
-			t1.start();
-		} catch (IOException e1) {
+		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -162,10 +154,8 @@ public class ProcessBuilderTester {
 		frame.setVisible(true);
 	}
 
-
 	public static void main(String[] args) {
 		new ProcessBuilderTester();
 	}
-
 
 }
