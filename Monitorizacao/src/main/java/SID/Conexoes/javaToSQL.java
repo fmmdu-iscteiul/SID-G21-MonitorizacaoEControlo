@@ -11,20 +11,26 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mongodb.DBObject;
 
+import SID.Interfaces.ProcessBuilderTester;
+import SID.grupo29.mqtt.AppStarter;
+
 public class javaToSQL {
 
-	//static String url = "jdbc:mysql://194.210.86.10:3306/aluno_g21";
+	// static String url = "jdbc:mysql://194.210.86.10:3306/aluno_g21";
 	static String url = "jdbc:mysql://localhost/monitorizacao";
 	static String user = "root";
 	static String pass = "";
 	static Connection con = null;
 
+	public static long end;
+	public static int count = 0;
+
 	private static void connection() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		try {
-			//Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+			// Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 			con = DriverManager.getConnection(url, user, pass);
 			System.out.println("Conectado com o MySQL");
-			//getNomeTabelas();
+			// getNomeTabelas();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Erro de Conexão");
@@ -32,24 +38,37 @@ public class javaToSQL {
 		}
 	}
 
-	public static void insertTabela(DBObject leitura, boolean medicao) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+	public static void insertTabela(DBObject leitura, boolean medicao)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		String[] content = stringSplitter(leitura);
 		connection();
 		Statement statement = con.createStatement();
 		String insertquery;
-		if(medicao) {
-			insertquery = "INSERT INTO `medicao`(`Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('" + content[1] + "', '"
-					+ content[2] + "', '" + Timestamp.valueOf(content[3])  + "', '" + Double.valueOf(content[4]) + "', '" + content[0] + "')";
+		if (medicao) {
+			insertquery = "INSERT INTO `medicao`(`Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('"
+					+ content[1] + "', '" + content[2] + "', '" + Timestamp.valueOf(content[3]) + "', '"
+					+ Double.valueOf(content[4]) + "', '" + content[0] + "')";
 
 			System.out.println("Inserted na tabela medicao");
 		} else {
-			insertquery = "INSERT INTO `medicao_erro`(`Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('" + content[1] + "', '"
-					+ content[2] + "', '" + Timestamp.valueOf(content[3])  + "', '" + Double.valueOf(content[4]) + "', '" + content[0] + "')";
+			insertquery = "INSERT INTO `medicao_erro`(`Zona`, `Sensor`, `Hora`, `Leitura`, `IDleitura`) VALUES ('"
+					+ content[1] + "', '" + content[2] + "', '" + Timestamp.valueOf(content[3]) + "', '"
+					+ Double.valueOf(content[4]) + "', '" + content[0] + "')";
 
-			System.out.println("Inserted na tabela erro.");		
+			System.out.println("Inserted na tabela erro.");
 		}
-		
+
 		statement.executeUpdate(insertquery);
+
+		count++;
+		System.out.println("\nContador: " + count + "\n");
+
+		if (count == 299) {
+			end = System.currentTimeMillis() - mongoToJava.init;
+			System.out.println("\n------------------------------------------------------------\n\n"
+					+ "Tempo médio de migração grupo 21: " + end / 300
+					+ " milisegundos\n\n------------------------------------------------------------\n");
+		}
 
 	}
 
@@ -59,29 +78,26 @@ public class javaToSQL {
 		String sensor = leitura.get("Sensor").toString();
 		String data = leitura.get("Data").toString();
 		String medicao = leitura.get("Medicao").toString();
-		//		StringUtils.substringsBetween(id, "ObjectID(\"", "\")");
+		// StringUtils.substringsBetween(id, "ObjectID(\"", "\")");
 		data = StringUtils.replace(data, "T", " ");
 		data = StringUtils.replace(data, "Z", "");
 
-		String[] r = {id, zona, sensor, data, medicao};
-		for(int i = 0; i < 5; i++)
+		String[] r = { id, zona, sensor, data, medicao };
+		for (int i = 0; i < 5; i++)
 			System.out.println("Excerto " + i + " " + r[i]);
 		return r;
 	}
 
-
-	public static void getNomeTabelas()
-	{
+	public static void getNomeTabelas() {
 		try {
 
 			java.sql.DatabaseMetaData dbmd = con.getMetaData();
-			String[] type = {"TABLE"};
+			String[] type = { "TABLE" };
 			ResultSet rs = dbmd.getTables("NADA", null, "%", type);
 			while (rs.next()) {
 				System.out.println(rs.getString("TABLE_NAME"));
 			}
-		} 
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}

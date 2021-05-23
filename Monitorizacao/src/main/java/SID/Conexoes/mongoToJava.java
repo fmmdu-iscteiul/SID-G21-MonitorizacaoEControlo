@@ -46,9 +46,12 @@ public class mongoToJava extends Thread {
 	public mongoToJava(String collectionName) {
 		this.collectionName = collectionName;
 	}
+	
+	public static long init;
+
 
 	// run
-	@SuppressWarnings({ "deprecation", "static-access" })
+	@SuppressWarnings({ "deprecation" })
 	public void run() {
 
 		// conexao mongo
@@ -88,9 +91,12 @@ public class mongoToJava extends Thread {
 		DBObject next = null;
 		
 		DBObject leitura = new BasicDBObject();
+		
+		init = System.currentTimeMillis();
 
 		while (true) {
 			try {
+//				init = System.currentTimeMillis();
 				cursor = collection.find().sort(new BasicDBObject("_id", -1)); // -1 for descending, 1 for
 //				// ascending
 
@@ -136,6 +142,8 @@ public class mongoToJava extends Thread {
 
 				else
 					System.out.println("Waiting for entries in collection");
+				
+				sleep(1000);
 
 			} catch (MongoSocketOpenException e) {
 				System.out.println("Sensor interrompido");
@@ -154,11 +162,8 @@ public class mongoToJava extends Thread {
 				// TODO Auto-generated catch block
 				errorInt = 0;
 				e.printStackTrace();
-			}
-
-			try {
-				this.sleep(4000);
-			} catch (InterruptedException e1) {
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				break;
 			}
 
@@ -203,7 +208,6 @@ public class mongoToJava extends Thread {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			System.out.println("O valor não foi inserido na base de dados");
-			e.printStackTrace();
 		}
 	}
 
@@ -268,12 +272,6 @@ public class mongoToJava extends Thread {
 		collection.remove(leitura);
 	}
 
-	// main
-	public static void main(String[] args) {
-		mongoToJava c = new mongoToJava("Temperatura1");
-		
-		mongoToJava c1 = new mongoToJava("sensort1");
-		c1.start();
-	}
+
 
 }

@@ -11,15 +11,14 @@ import SID.Conexoes.mongoToJava;
 
 public class Broker {
 
-	private Mqtt3AsyncClient client = MqttClient.builder().useMqttVersion3()
-			.identifier(UUID.randomUUID().toString()).serverHost("broker.mqttdashboard.com").serverPort(1883)
-			.buildAsync();
+	private Mqtt3AsyncClient client = MqttClient.builder().useMqttVersion3().identifier(UUID.randomUUID().toString())
+			.serverHost("broker.mqttdashboard.com").serverPort(1883).buildAsync();
 
 	private String message;
 	private String topico;
-	
+
 	BrokerToMongo mongCon;
-	
+
 	mongoToJava mtj;
 
 //	boolean isConnected = false;
@@ -28,11 +27,11 @@ public class Broker {
 		this.topico = topico;
 		BrokerToMongo mongCon = new BrokerToMongo(sensor, this);
 		this.mongCon = mongCon;
-		
+
 		mongoToJava mtj = new mongoToJava(sensor);
 		this.mtj = mtj;
 		ClientConnection();
-		
+
 	}
 
 	synchronized public void ClientConnection() {
@@ -52,15 +51,16 @@ public class Broker {
 
 	synchronized private void subscribeMessage(String topico) {
 		client.subscribeWith().topicFilter(topico).callback(publish -> {
-			String message = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
-			System.out.println(topico + " -> " + message);
-			this.message = message;
+			if (!publish.isRetain()) {
+				String message = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
+				System.out.println(topico + " -> " + message);
+				this.message = message;
+			}
 
 		}).send().whenComplete((subAck, throwable) -> {
 			if (throwable != null) { // Handle failure to subscribe
 				System.out.println("Tópico não subscrito.");
-			} 
-			else { // Handle successful subscription, e.g. logging or incrementing a metric
+			} else { // Handle successful subscription, e.g. logging or incrementing a metric
 				System.out.println("Topico " + topico + " subscrito com sucesso.");
 				mongCon.start();
 				mtj.start();

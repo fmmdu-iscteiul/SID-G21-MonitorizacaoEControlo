@@ -1,4 +1,4 @@
-package SID.Conexoes;
+package SID.grupo29.mqtt;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -9,18 +9,18 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import SID.BrokerToMongo.Broker;
+import SID.grupo29.mqtt.ClientBroker29;
 
-public class BrokerToMongo extends Thread {
+public class BrokerToMongo29 extends Thread {
 
-	private String sensor;
+	private String colecao;
 	MongoClient mongo = new MongoClient("localhost", 27017);
-	Broker broker;
+	ClientBroker29 ClientBroker;
 
-	public BrokerToMongo(String sensor, Broker broker) {
-		this.sensor = sensor;
-		this.broker = broker;
+	public BrokerToMongo29(String colecao, ClientBroker29 ClientBroker) {
+		this.colecao = colecao;
+		this.ClientBroker = ClientBroker;
 	}
-
 
 	public void run() {
 		insertToMongo();
@@ -28,24 +28,33 @@ public class BrokerToMongo extends Thread {
 
 	public void insertToMongo() {
 
+		MongoDatabase db;
+
 		// Conecta a uma base de dados
-		 MongoDatabase db = mongo.getDatabase("Monitorizacao");
+
+		db = mongo.getDatabase("Monitorizacao29");
 
 		// Conecta a coleçao existente
-		MongoCollection<Document> collection = db.getCollection(sensor);
+		MongoCollection<Document> collection = db.getCollection(colecao);
 
 		String leitura = "Mensagem";
 		Document doc;
 		while (true) {
 			try {
 				// analyse new entries
-				String aux = broker.getMessage();
-
+				sleep(1000);
+				String aux;
+				
+				aux = ClientBroker.getMessage();
+				System.out.println("Mensagem do Broker é: " + aux);
+				
 				if (!leitura.equals(aux) && aux != null) {
 					System.out.println("Inserting in mongo");
+
 					leitura = aux;
-					System.out.println("Leitura Broker: " + leitura);
+					System.out.println("Leitura Broker Sensor: " + leitura);
 					String[] s = stringSplitter(leitura);
+										
 					doc = new Document("_id", new ObjectId());
 					doc.append("Zona", s[0]);
 					doc.append("Sensor", s[1]);
@@ -57,7 +66,6 @@ public class BrokerToMongo extends Thread {
 
 				else
 					System.out.println("Waiting for Sensor");
-				sleep(1000);
 
 			} catch (MongoSocketOpenException e) {
 				System.out.println("Sensor interrompido");
@@ -78,7 +86,7 @@ public class BrokerToMongo extends Thread {
 		String sensor;
 		String data;
 		String medicao;
-		for (int i = 0; i <= 3; i++) {
+		for (int i = 0; i < separacao.length; i++) {
 			if (i == 0) {
 				zona = separacao[i].strip().split("\"")[1];
 				separacao[i] = zona;

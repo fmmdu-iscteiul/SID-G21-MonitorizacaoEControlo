@@ -1,10 +1,11 @@
-package SID.Interfaces;
+package SID.grupo29.mqtt;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Time;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,24 +15,23 @@ import javax.swing.WindowConstants;
 
 import SID.BrokerToMongo.Broker;
 
-public class ProcessBuilderTester {
+public class AppStarter {
 
 	/* ola */
 	public JFrame frame;
-//	ProcessBuilder pb = new ProcessBuilder("java", "-jar", "C:\\Users\\Yotsuba\\Desktop\\Teste.jar"); // Torre
-//	Process processo;
-	ThreadTeste t;
-	private Broker broker;
+	private ClientBroker29 broker;
 
 	private static final int n_sensores = 6;
 
 	private final JPanel[] panels = new JPanel[n_sensores];
 	private final JButton[] buttons = new JButton[n_sensores];
 	private final JLabel[] labels = new JLabel[n_sensores];
-	
-	private int iterator = 0;
 
-	public ProcessBuilderTester() {
+	private int iterator = 0;
+	
+	public static long init;
+
+	public AppStarter() {
 		frame = new JFrame("Inicializar migração dos sensores");
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		addFrameContent();
@@ -42,9 +42,9 @@ public class ProcessBuilderTester {
 	public void addFrameContent() {
 		frame.setLayout(new GridLayout(1, (n_sensores + 1)));
 		JButton activateAll = new JButton("Turn all sensors on");
-//		JButton deactivateAll = new JButton("Turn all sensors off");
+		//		JButton deactivateAll = new JButton("Turn all sensors off");
 		frame.add(activateAll);
-//		frame.add(deactivateAll);
+		//		frame.add(deactivateAll);
 
 		for (int i = 0; i < buttons.length; i++) {
 			if (i == 0)
@@ -88,20 +88,20 @@ public class ProcessBuilderTester {
 				}
 			}
 		});
-		
-		
-//		-------------------------------desativar todos---------------------------------------
 
-//		deactivateAll.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				for (int i = 0; i < n_sensores; i++) {
-//					buttons[i].doClick();
-//				}
-//			}
-//		});
-		
-//		-------------------------------------------------------------------------------------		
-		
+
+		//		-------------------------------desativar todos---------------------------------------
+
+		//		deactivateAll.addActionListener(new ActionListener() {
+		//			public void actionPerformed(ActionEvent e) {
+		//				for (int i = 0; i < n_sensores; i++) {
+		//					buttons[i].doClick();
+		//				}
+		//			}
+		//		});
+
+		//		-------------------------------------------------------------------------------------		
+
 
 		for (int i = 0; i < panels.length; i++) {
 			panels[i] = new JPanel(new GridLayout(2, 1));
@@ -112,35 +112,10 @@ public class ProcessBuilderTester {
 	}
 
 	private void Initialize(String botao) {
-		try {
-			
-			System.out.println("\nbotao do initialize: " + botao + "\n");
-//			processo = pb.start();
-			
-//			t = new ThreadTeste(labels[botao], processo, buttons[botao]);
-//			t.start();
-						
-			switch (botao) {
-			case "H1":
-				broker = new Broker("Humidade1", "sid_g21_h1");
-				break;
-			case "H2":
-				broker = new Broker("Humidade2", "sid_g21_h2");
-				break;
-			case "T1":
-				broker = new Broker("Temperatura1", "sid_g21_t1");
-				break;
-			case "T2":
-				broker = new Broker("Temperatura2", "sid_g21_t2");
-				break;
-			case "L1":
-				broker = new Broker("Luminosidade1", "sid_g21_l1");
-				break;
-			case "L2":
-				broker = new Broker("Luminosidade2", "sid_g21_l2");
-				break;
+		try {			
 
-			}
+			broker = new ClientBroker29("Leituras", "sid_g21_29");
+			init = System.currentTimeMillis();
 
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -156,7 +131,7 @@ public class ProcessBuilderTester {
 	}
 
 	public static void main(String[] args) {
-		new ProcessBuilderTester();
+		new AppStarter();
 	}
 
 }
