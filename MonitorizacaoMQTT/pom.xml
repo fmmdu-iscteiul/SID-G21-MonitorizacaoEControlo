@@ -5,11 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>SID</groupId>
-  <artifactId>Monitorizacao</artifactId>
+  <artifactId>MonitorizacaoMQTT</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
-  <name>Monitorizacao</name>
-  <description>A simple Monitorizacao.</description>
+  <name>MonitorizacaoMQTT</name>
+  <description>A simple MonitorizacaoMQTT.</description>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
