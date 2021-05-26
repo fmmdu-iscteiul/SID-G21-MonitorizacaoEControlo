@@ -12,6 +12,8 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoSocketOpenException;
 
+import SID.FileIni.FileIni;
+
 // Monitorizacao:
 //  -Temperatura1
 //  -Temperatura2
@@ -37,13 +39,17 @@ public class mongoToJava extends Thread {
 	private DBCollection collection;
 	private DBCollection collectionBackup;
 	// tratamento de dados
-	private DBObject[] errorVet = new DBObject[3];
+	private DBObject[] errorVet = new DBObject[FileIni.getVetorSize()];
 	private int errorInt = 0;
 	private double refMedicao = 10000; // 10000?
-	private double MAX_VARIATION = 5;
+	private double MAX_VARIATION = FileIni.getMaxVariation("TEMPERATURA");
 
 	// construtor
 	public mongoToJava(String collectionName) {
+		String aux = collectionName.substring(0, collectionName.length()-2).toUpperCase();
+		MAX_VARIATION = FileIni.getMaxVariation(aux);
+		
+			
 		this.collectionName = collectionName;
 	}
 	
