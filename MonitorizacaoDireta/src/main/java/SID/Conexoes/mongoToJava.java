@@ -28,27 +28,33 @@ import SID.FileIni.FileIni;
 //  -23016 db2
 //  -25016 db3
 
-public class mongoToJava {
+public class mongoToJava{
 
 	// conexao mongo
 	private String user = "owner";
 	private String database = "Monitorizacao";
 	private char[] password = { 'm', 't', 'T', 'L', '5', 'B', 'W', 'd', '6', 'F', 'f', '3' };
 	private String collectionName;
+	private String IPMongo;
 	// colecoes mongo
 	private DBCollection collection;
 	private DBCollection collectionBackup;
 	// tratamento de dados
-	private DBObject[] errorVet = new DBObject[FileIni.getVetorSize()];
+	private int vetorErros; 
+	private DBObject[] errorVet;
 	private int errorInt = 0;
 	private double refMedicao = 10000; // 10000?
 	private double MAX_VARIATION;
 
 	// construtor
-	public mongoToJava(String collectionName) {
+	public mongoToJava(String collectionName, String tipoSensor) {
 		//String aux = collectionName.substring(0, collectionName.length()-2).toUpperCase();
 		this.collectionName = collectionName;
-		MAX_VARIATION = FileIni.getMaxVariation(collectionName);
+		MAX_VARIATION = FileIni.getMaxVariation(tipoSensor);
+		IPMongo = FileIni.getIPMongo();
+		vetorErros = FileIni.getVetorSize();
+		errorVet = new DBObject[vetorErros];
+		
 	}
 	
 	public static long init;
@@ -63,14 +69,14 @@ public class mongoToJava {
 
 //		------------------------------tirar comentário no pc ana---------------------------------
 		 
-		 MongoClient mongo = new MongoClient( new
-		 MongoClientURI("mongodb://localhost:27016,localhost:23016,localhost:25016/?replicaSet=replicaMonitorizacao"));
+//		 MongoClient mongo = new MongoClient( new
+//		 MongoClientURI("mongodb://" + IPMongo + ":27016," + IPMongo + ":23016," + IPMongo + ":25016/?replicaSet=replicaMonitorizacao"));
 		 
 //		-----------------------------------------------------------------------------------------
 		 
 		 
 //		----------------------- FRED -------------------------------
-//		MongoClient mongo = new MongoClient("localhost", 27017);
+		MongoClient mongo = new MongoClient(IPMongo, 27017);
 //		------------------------------------------------------------
 
 		// Conexao à base de dados do mongo (Monitorizacao)
@@ -81,14 +87,10 @@ public class mongoToJava {
 		collection = db.getCollection(collectionName);
 //		System.out.println(collection.getName());
 
-		// Conexao à colecao backup
-		
-//		------------------------------tirar comentário no pc ana---------------------------------
-		
+		// Conexao à colecao backup		
 		collectionBackup = db.getCollection("Backup"); 
 		System.out.println(collectionBackup.getName());
 		
-//		-----------------------------------------------------------------------------------------
 		
 		DBCursor cursor;
 		
@@ -119,24 +121,24 @@ public class mongoToJava {
 						if (isSuspect) {
 							System.out.println("suspeita: " + errorInt);
 							errorVet[errorInt] = leitura;
-							if (errorInt >= 0 && errorInt <= 2) // vetor nao cheio
+							if (errorInt >= 0 && errorInt <= vetorErros - 1) // vetor nao cheio
 								errorInt++;
 						}
 						// -inserir no SQL
-						if (!(errorInt >= 0 && errorInt < 3 && isSuspect && isCoerent)) { // !(suspeita coerente antes
+						if (!(errorInt >= 0 && errorInt < vetorErros && isSuspect && isCoerent)) { // !(suspeita coerente antes
 																							// de encher o vetor de
 																							// analise)
 							insertSQL(leitura, isSuspect, isCoerent, d);
 							errorInt = 0; // reset do vetor
 						}
 						// mover para backup
-						
-						
-//						--------------------------------------------------------------------------------------
-						
+								
 						collectionToBackup(leitura);
 						
-//						--------------------------------------------------------------------------------------
+						while(cursor.hasNext()) {
+							collectionToBackup(cursor.next());
+						}
+						
 						
 						
 					}
@@ -248,7 +250,7 @@ public class mongoToJava {
 			insertSQLMedicao(leitura, medicao);
 			System.out.println("Leitura inserida naturalmente");
 		} else { // dentro da analise
-			if (errorInt == 3 && isSuspect && isCoerent) { // ultima, suspeita, coerente - todas corretas
+			if (errorInt == vetorErros && isSuspect && isCoerent) { // ultima, suspeita, coerente - todas corretas
 				for (int i = 0; i < errorInt; i++)
 					insertSQLMedicao(errorVet[i], medicao);
 				System.out.println("Leituras inseridas todas corretas");
@@ -276,8 +278,8 @@ public class mongoToJava {
 		collection.remove(leitura);
 	}
 
-	public static void main(String[] args) throws InterruptedException {
-		mongoToJava p = new mongoToJava(args[0]); //collectionName
+	public static void main(String[] args) {
+		mongoToJava p = new mongoToJava(args[0], args[1]); //collectionName
 		p.run();
 	}
 

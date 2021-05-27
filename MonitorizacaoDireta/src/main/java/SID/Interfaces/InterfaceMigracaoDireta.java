@@ -12,23 +12,24 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-public class ProcessBuilderTester {
+import SID.Conexoes.mongoToJava;
+
+public class InterfaceMigracaoDireta {
 
 	/* ola */
 	public JFrame frame;
-	ThreadTeste t;
 
-	
 	private static final int n_sensores = 6;
 
 	private final JPanel[] panels = new JPanel[n_sensores];
 	private final JButton[] buttons = new JButton[n_sensores];
 	private final JLabel[] labels = new JLabel[n_sensores];
-	
+	private Thread[] threads = new Thread[n_sensores];
+
 	private int iterator = 0;
 
-	public ProcessBuilderTester() {
-		frame = new JFrame("Inicializar migração dos sensores");
+	public InterfaceMigracaoDireta() {
+		frame = new JFrame("Inicializar migração do Mongo para o MySQL");
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		addFrameContent();
 		frame.pack();
@@ -38,10 +39,8 @@ public class ProcessBuilderTester {
 	public void addFrameContent() {
 		frame.setLayout(new GridLayout(1, (n_sensores + 1)));
 		JButton activateAll = new JButton("Turn all sensors on");
-//		JButton deactivateAll = new JButton("Turn all sensors off");
 		frame.add(activateAll);
-//		frame.add(deactivateAll);
-	
+
 		for (int i = 0; i < buttons.length; i++) {
 			if (i == 0)
 				buttons[i] = new JButton("H" + 1);
@@ -84,20 +83,6 @@ public class ProcessBuilderTester {
 				}
 			}
 		});
-		
-		
-//		-------------------------------desativar todos---------------------------------------
-
-//		deactivateAll.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				for (int i = 0; i < n_sensores; i++) {
-//					buttons[i].doClick();
-//				}
-//			}
-//		});
-		
-//		-------------------------------------------------------------------------------------		
-		
 
 		for (int i = 0; i < panels.length; i++) {
 			panels[i] = new JPanel(new GridLayout(2, 1));
@@ -109,37 +94,70 @@ public class ProcessBuilderTester {
 
 	private void Initialize(String botao) {
 		try {
-			
+
 			System.out.println("\nbotao do initialize: " + botao + "\n");
-			
-//			t = new ThreadTeste(labels[botao], processo, buttons[botao]);
-//			t.start();
-			
+
+
+
 			String tipoSensor = "";
-			
+			String collection = "";
+			int index = -1;
+
 			switch (botao) {
 			case "H1":
 				tipoSensor = "HUMIDADE";
+				collection = "Humidade1";
+				index = 0;
 				break;
 			case "H2":
 				tipoSensor = "HUMIDADE";
+				collection = "Humidade2";
+				index = 1;
 				break;
 			case "T1":
 				tipoSensor = "TEMPERATURA";
+				collection = "Temperatura1";
+				index = 2;
 				break;
 			case "T2":
 				tipoSensor = "TEMPERATURA";
+				collection = "Temperatura2";
+				index = 3;
 				break;
 			case "L1":
 				tipoSensor = "LUMINOSIDADE";
+				collection = "Luminosidade1";
+				index = 4;
 				break;
 			case "L2":
 				tipoSensor = "LUMINOSIDADE";
+				collection = "Luminosidade2";
+				index = 5;
 				break;
 			}
+
+			final String[] args = {collection, tipoSensor};
+
+			//			ProcessBuilder pb = new ProcessBuilder("java", "-jar", "C:\\Users\\fred9\\OneDrive\\Documentos\\Faculdade\\SID\\MonitorizacaoDireta\\MigracaoDireta.jar", collection, tipoSensor);
+			//			Process processo = pb.start();
+			//			System.out.println(processo.pid());
+			//			new mongoToJava(collection, tipoSensor).start();
+			if(threads[index] == null) {
+				labels[index].setText("Working");
+				threads[index] = new Thread() {
+					public void run() {
+						mongoToJava.main(args);
+					}
+				};
+				threads[index].start();
+			}
 			
-			ProcessBuilder pb = new ProcessBuilder("java", "-jar", "C:\\Users\\Yotsuba\\Desktop\\Teste.jar", tipoSensor);
-			Process processo = pb.start();
+			else {
+				labels[index].setText("Down");
+				threads[index].interrupt();
+				threads[index] = null;
+			}
+				
 
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -155,7 +173,7 @@ public class ProcessBuilderTester {
 	}
 
 	public static void main(String[] args) {
-		new ProcessBuilderTester();
+		new InterfaceMigracaoDireta();
 	}
 
 }

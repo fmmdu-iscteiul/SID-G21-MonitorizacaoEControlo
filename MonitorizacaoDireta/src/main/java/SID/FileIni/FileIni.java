@@ -13,8 +13,8 @@ public class FileIni {
 		if(f.createNewFile()) {
 			FileWriter myWriter = new FileWriter(f);
 		    myWriter.write("** TRATAMENTO DE DADOS **\n\nTamanho_vetor_de_valores_suspeitos = 3"
-		    		+ "\nMAX_VARIATION_TEMPERATURA = 10\nMAX_VARIATION_HUMIDADE = 6"
-		    		+ "\nMAX_VARIATION_LUMINOSIDADE = 5");
+		    		+ "\nMAX_VARIATION_TEMPERATURA = 2\nMAX_VARIATION_HUMIDADE = 2"
+		    		+ "\nMAX_VARIATION_LUMINOSIDADE = 2\n\n** MongoDB **\n\nIP_servidor = 127.0.0.1");
 		    myWriter.close();
 		} 
     }
@@ -53,9 +53,26 @@ public class FileIni {
 		return -1;
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(FileIni.getVetorSize() + " " + FileIni.getMaxVariation("TEMPERATURA") 
-				+ " " + FileIni.getMaxVariation("HUMIDADE") + " " + FileIni.getMaxVariation("LUMINOSIDADE") );
+	public static String getIPMongo() {
+		try {
+			createIni();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try (FileReader reader = new FileReader(new File("config.ini"))) {
+			Properties p = new Properties();
+			p.load(reader);
+			return p.getProperty("IP_servidor").strip();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
+	
+//	public static void main(String[] args) {
+//		System.out.println(FileIni.getVetorSize() + " " + FileIni.getMaxVariation("TEMPERATURA") 
+//				+ " " + FileIni.getMaxVariation("HUMIDADE") + " " + FileIni.getMaxVariation("LUMINOSIDADE") );
+//	}
 	
 }

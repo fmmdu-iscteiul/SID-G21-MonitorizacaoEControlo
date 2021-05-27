@@ -14,7 +14,7 @@ import javax.swing.WindowConstants;
 
 import SID.BrokerToMongo.Broker;
 
-public class ProcessBuilderTester {
+public class InterfaceSensores {
 
 	/* ola */
 	public JFrame frame;
@@ -27,12 +27,11 @@ public class ProcessBuilderTester {
 
 	private final JPanel[] panels = new JPanel[n_sensores];
 	private final JButton[] buttons = new JButton[n_sensores];
-	private final JLabel[] labels = new JLabel[n_sensores];
 	
 	private int iterator = 0;
 
-	public ProcessBuilderTester() {
-		frame = new JFrame("Inicializar migração dos sensores");
+	public InterfaceSensores() {
+		frame = new JFrame("Inicializar migração dos dados para o mongo");
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		addFrameContent();
 		frame.pack();
@@ -67,11 +66,7 @@ public class ProcessBuilderTester {
 
 		}
 
-		for (int i = 0; i < labels.length; i++) {
-			labels[i] = new JLabel("Down");
-		}
-
-		for (iterator = 0; iterator < labels.length; iterator++) {
+		for (iterator = 0; iterator < n_sensores; iterator++) {
 			buttons[iterator].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					((JButton)e.getSource()).getText();
@@ -88,26 +83,11 @@ public class ProcessBuilderTester {
 				}
 			}
 		});
-		
-		
-//		-------------------------------desativar todos---------------------------------------
-
-//		deactivateAll.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				for (int i = 0; i < n_sensores; i++) {
-//					buttons[i].doClick();
-//				}
-//			}
-//		});
-		
-//		-------------------------------------------------------------------------------------		
-		
 
 		for (int i = 0; i < panels.length; i++) {
 			panels[i] = new JPanel(new GridLayout(2, 1));
 			frame.add(panels[i]);
 			panels[i].add(buttons[i]);
-			panels[i].add(labels[i]);
 		}
 	}
 
@@ -156,7 +136,7 @@ public class ProcessBuilderTester {
 	}
 
 	public static void main(String[] args) {
-		new ProcessBuilderTester();
+		new InterfaceSensores();
 	}
 
 }

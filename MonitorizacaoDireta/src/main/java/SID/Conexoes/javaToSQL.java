@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mongodb.DBObject;
 
-import SID.Interfaces.ProcessBuilderTester;
+import SID.Interfaces.InterfaceMigracaoDireta;
 
 public class javaToSQL {
 
